@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_text_model: str = "gpt-5"
     openai_text_model_fallback: str = "gpt-4o"
-    openai_image_model: str = "gpt-image-1"
+    openai_image_model: str = "gpt-image-2.5-flare"
 
     # FLUX Pro (Replicate)
     replicate_api_token: str | None = None

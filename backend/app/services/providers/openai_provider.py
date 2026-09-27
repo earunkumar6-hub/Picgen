@@ -15,7 +15,7 @@ _SIZE_BY_ASPECT = {
 
 class OpenAIImageProvider(ImageProvider):
     name = "openai"
-    label = "OpenAI Images (gpt-image-1)"
+    label = "OpenAI Images (gpt-image-2.5-flare)"
 
     def is_available(self) -> bool:
         return bool(get_settings().openai_api_key)
