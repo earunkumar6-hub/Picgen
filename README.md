@@ -2,7 +2,7 @@
 
 A prompt builder and image generation studio built around the **Style, Intent, Parameters
 (SIP)** framework. Build structured prompts, optionally enhance them with GPT, then generate
-images with OpenAI Images, FLUX Pro, Ideogram, or Google Imagen.
+images with OpenAI Images, FLUX Pro, Ideogram, or Google Gemini Image (Vertex AI).
 
 This is the **local MVP**: SQLite database, images stored on local disk, no authentication
 (single-user). Postgres/MinIO/JWT (as described in `picgen.json`) can be layered on later.
@@ -39,7 +39,7 @@ Backend runs at http://127.0.0.1:8000. `GET /api/health` for a liveness check,
 | OpenAI (prompts + images) | `OPENAI_API_KEY` | Also powers GPT-5 prompt enhancement |
 | FLUX Pro | `REPLICATE_API_TOKEN` | Via Replicate |
 | Ideogram | `IDEOGRAM_API_KEY` | |
-| Google Imagen | `GOOGLE_CLOUD_PROJECT`, `GOOGLE_APPLICATION_CREDENTIALS` | Needs a Vertex AI service-account JSON key |
+| Google Gemini Image (Vertex AI) | `GOOGLE_CLOUD_PROJECT`, `GOOGLE_APPLICATION_CREDENTIALS` | Needs a Vertex AI service-account JSON key |
 
 ## Frontend setup
 

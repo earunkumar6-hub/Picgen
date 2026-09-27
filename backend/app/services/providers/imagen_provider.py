@@ -8,13 +8,13 @@ from google.oauth2 import service_account
 from app.core.config import get_settings
 from app.services.providers.base import ImageProvider, ProviderError
 
-_MODEL_ID = "imagegeneration@006"
+# Imagen models on Vertex AI were retired on 2026-06-30; Gemini image models replace them.
 _SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
 
 
 class ImagenProvider(ImageProvider):
     name = "imagen"
-    label = "Google Imagen (Vertex AI)"
+    label = "Google Gemini Image (Vertex AI)"
 
     def is_available(self) -> bool:
         settings = get_settings()
@@ -31,34 +31,57 @@ class ImagenProvider(ImageProvider):
         credentials.refresh(Request())
         return credentials.token
 
+    def _url(self, settings, model: str) -> str:
+        location = settings.google_cloud_location
+        host = "aiplatform.googleapis.com" if location == "global" else f"{location}-aiplatform.googleapis.com"
+        return (
+            f"https://{host}/v1/projects/{settings.google_cloud_project}/locations/{location}/"
+            f"publishers/google/models/{model}:generateContent"
+        )
+
     def generate(self, prompt: str, n: int, aspect_ratio: str, fmt: str) -> list[bytes]:
         settings = get_settings()
         if not self.is_available():
-            raise ProviderError("Google Imagen is not configured (project/credentials missing).")
+            raise ProviderError("Google Vertex AI is not configured (project/credentials missing).")
 
         token = self._access_token(settings)
-        url = (
-            f"https://{settings.google_cloud_location}-aiplatform.googleapis.com/v1/"
-            f"projects/{settings.google_cloud_project}/locations/{settings.google_cloud_location}/"
-            f"publishers/google/models/{_MODEL_ID}:predict"
-        )
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
         body = {
-            "instances": [{"prompt": prompt}],
-            "parameters": {"sampleCount": n, "aspectRatio": aspect_ratio},
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "responseModalities": ["TEXT", "IMAGE"],
+                "imageConfig": {"aspectRatio": aspect_ratio},
+            },
         }
 
-        with httpx.Client(timeout=60) as client:
-            resp = client.post(url, headers=headers, json=body)
-        if resp.status_code >= 400:
-            raise ProviderError(f"Imagen request failed ({resp.status_code}): {resp.text}")
+        models_to_try = [settings.google_image_model, settings.google_image_model_fallback]
+        errors: list[str] = []
+        with httpx.Client(timeout=90) as client:
+            for model in models_to_try:
+                # Gemini returns one image per call, so request each variation separately.
+                images: list[bytes] = []
+                failed = False
+                for _ in range(n):
+                    resp = client.post(self._url(settings, model), headers=headers, json=body)
+                    if resp.status_code >= 400:
+                        errors.append(f"{model} ({resp.status_code}): {resp.text}")
+                        failed = True
+                        break
+                    images.extend(self._extract_images(resp.json()))
+                if failed:
+                    continue
+                if images:
+                    return images
+                errors.append(f"{model}: response contained no image data")
 
-        predictions = resp.json().get("predictions", [])
-        images = [
-            base64.b64decode(p["bytesBase64Encoded"])
-            for p in predictions
-            if p.get("bytesBase64Encoded")
-        ]
-        if not images:
-            raise ProviderError("Imagen returned no image data.")
+        raise ProviderError("Gemini image generation failed: " + " | ".join(errors))
+
+    @staticmethod
+    def _extract_images(payload: dict) -> list[bytes]:
+        images: list[bytes] = []
+        for candidate in payload.get("candidates", []):
+            for part in candidate.get("content", {}).get("parts", []):
+                data = part.get("inlineData", {}).get("data")
+                if data:
+                    images.append(base64.b64decode(data))
         return images

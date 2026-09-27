@@ -20,10 +20,12 @@ class Settings(BaseSettings):
     # Ideogram
     ideogram_api_key: str | None = None
 
-    # Google Imagen (Vertex AI)
+    # Google Gemini Image (Vertex AI) — replaces the retired Imagen models
     google_cloud_project: str | None = None
     google_cloud_location: str = "us-central1"
     google_application_credentials: str | None = None
+    google_image_model: str = "gemini-3.1-flash-image"
+    google_image_model_fallback: str = "gemini-2.5-flash-image"
 
     # App
     database_url: str = "sqlite:///./picgen.db"
