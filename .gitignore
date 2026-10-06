@@ -14,6 +14,16 @@ frontend/dist/
 backend/storage/images/*
 !backend/storage/images/.gitkeep
 
+# Secrets (any .env; .env.example stays tracked)
+.env
+*.env
+
+# Test samples and sample pictures/videos
+picgen_fb_test/
+picgen_test_videos/
+test.txt
+New Text Document.txt
+
 # OS / editor
 .DS_Store
 *.log
