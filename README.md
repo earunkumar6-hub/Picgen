@@ -7,14 +7,13 @@ A prompt builder and image generation studio built around the **Style, Intent, P
 images with OpenAI Images, FLUX Pro, Ideogram, or Google Gemini Image (Vertex AI).
 
 This is the **local MVP**: SQLite database, images stored on local disk, no authentication
-(single-user). Postgres/MinIO/JWT (as described in `picgen.json`) can be layered on later.
+(single-user). Postgres/MinIO/JWT can be layered on later.
 
 ## Project layout
 
 ```
 backend/    FastAPI + SQLAlchemy + SQLite, image provider adapters
 frontend/   React + TypeScript + Vite + Tailwind
-picgen.json Original product spec this app was built from
 ```
 
 ## Backend setup
@@ -66,4 +65,4 @@ Frontend runs at http://localhost:5173 and proxies `/api` and `/storage` to the 
 ## Not built (out of MVP scope)
 
 Auth, Postgres, MinIO, team workspaces, brand kits, multi-language prompts, and the other
-`future_features` from `picgen.json` — add them when needed.
+future features from the original product spec — add them when needed.

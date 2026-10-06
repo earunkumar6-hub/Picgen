@@ -27,3 +27,6 @@ New Text Document.txt
 # OS / editor
 .DS_Store
 *.log
+
+# Local product spec (kept out of the repo)
+picgen.json
