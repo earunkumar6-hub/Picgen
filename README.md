@@ -1,5 +1,7 @@
 # SIP AI Design Studio
 
+**The Anti-Slop Image Generator**
+
 A prompt builder and image generation studio built around the **Style, Intent, Parameters
 (SIP)** framework. Build structured prompts, optionally enhance them with GPT, then generate
 images with OpenAI Images, FLUX Pro, Ideogram, or Google Gemini Image (Vertex AI).
